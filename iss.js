@@ -35,11 +35,8 @@ const fetchCoordsByIP = (ip, cb) => {
     if (err) return cb(err,null);
     if (res.statusCode !== 200) return cb(Error('Server\'s status code is ' + res.statusCode));
     try {
-      const coordinates = {
-        lat: JSON.parse(body).data.latitude,
-        lon: JSON.parse(body).data.longitude
-      };
-      cb(null, coordinates);
+      const { latitude, longitude } = JSON.parse(body).data;
+      cb(null, { latitude, longitude });
     } catch (err) {
       cb(err, null);
     }
@@ -47,4 +44,17 @@ const fetchCoordsByIP = (ip, cb) => {
   });
 };
 
-module.exports = { fetchMyIP, fetchCoordsByIP };
+const fetchISSFlyOverTimes = (coordinates, cb) => {
+  req(`http://api.open-notify.org/iss-pass.json?lat=${coordinates.latitude}&lon=${coordinates.longitude}`, (err, res, body) => {
+    if (err) return cb(err,null);
+    if (res.statusCode !== 200) return cb(Error('Server\'s status code is ' + res.statusCode));
+    try {
+      cb(null, JSON.parse(body).response);
+    } catch (err) {
+      cb(err, null);
+    }
+    return;
+  });
+};
+
+module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes };
