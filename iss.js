@@ -8,7 +8,7 @@ const req = require('request');
  *   - The IP address as a string (null if error). Example: "162.245.144.188"
  */
 
-const fetchMyIP = function(cb) {
+const fetchMyIP = (cb) => {
   // use request to fetch IP address from JSON API
   req('https://api.ipify.org?format=json',(err,res,body) => {
     if (err) {
@@ -30,4 +30,21 @@ const fetchMyIP = function(cb) {
   });
 };
 
-module.exports = { fetchMyIP };
+const fetchCoordsByIP = (ip, cb) => {
+  req('https://ipvigilante.com/' + ip, (err, res, body) => {
+    if (err) return cb(err,null);
+    if (res.statusCode !== 200) return cb(Error('Server\'s status code is ' + res.statusCode));
+    try {
+      const coordinates = {
+        lat: JSON.parse(body).data.latitude,
+        lon: JSON.parse(body).data.longitude
+      };
+      cb(null, coordinates);
+    } catch (err) {
+      cb(err, null);
+    }
+    return;
+  });
+};
+
+module.exports = { fetchMyIP, fetchCoordsByIP };
