@@ -57,22 +57,6 @@ const fetchISSFlyOverTimes = (coordinates, cb) => {
   });
 };
 
-// const nextISSTimesForMyLocation = (cb) => {
-//   fetchISSFlyOverTimes(
-//     fetchCoordsByIP(
-//       fetchMyIP((err, ip) => {
-//         if (err) return cb(err, null);
-//         return ip;
-//       }), (err, coordinates) => {
-//         if (err) return cb(err, null);
-//         return coordinates;
-//       }), (err, passTimes) => {
-//       if (err) return cb(err, null);
-//       cb(null, passTimes);
-//       return;
-//     });
-// };
-
 const nextISSTimesForMyLocation = (cb) => {
   fetchMyIP((err, ip) => {
     if (err) return cb(err, null);
