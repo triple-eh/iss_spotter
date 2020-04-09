@@ -10,9 +10,9 @@ const req = require('request');
 
 const fetchMyIP = (cb) => {
   // use request to fetch IP address from JSON API
-  req('https://api.ipify.org?format=json',(err,res,body) => {
+  req('https://api.ipify.org?format=json', (err, res, body) => {
     if (err) {
-      cb(err,null);
+      cb(err, null);
       return;
     }
     if (res.statusCode !== 200) {
@@ -32,7 +32,7 @@ const fetchMyIP = (cb) => {
 
 const fetchCoordsByIP = (ip, cb) => {
   req('https://ipvigilante.com/' + ip, (err, res, body) => {
-    if (err) return cb(err,null);
+    if (err) return cb(err, null);
     if (res.statusCode !== 200) return cb(Error('Server\'s status code is ' + res.statusCode));
     try {
       const { latitude, longitude } = JSON.parse(body).data;
@@ -46,7 +46,7 @@ const fetchCoordsByIP = (ip, cb) => {
 
 const fetchISSFlyOverTimes = (coordinates, cb) => {
   req(`http://api.open-notify.org/iss-pass.json?lat=${coordinates.latitude}&lon=${coordinates.longitude}`, (err, res, body) => {
-    if (err) return cb(err,null);
+    if (err) return cb(err, null);
     if (res.statusCode !== 200) return cb(Error('Server\'s status code is ' + res.statusCode));
     try {
       cb(null, JSON.parse(body).response);
@@ -57,4 +57,33 @@ const fetchISSFlyOverTimes = (coordinates, cb) => {
   });
 };
 
-module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes };
+// const nextISSTimesForMyLocation = (cb) => {
+//   fetchISSFlyOverTimes(
+//     fetchCoordsByIP(
+//       fetchMyIP((err, ip) => {
+//         if (err) return cb(err, null);
+//         return ip;
+//       }), (err, coordinates) => {
+//         if (err) return cb(err, null);
+//         return coordinates;
+//       }), (err, passTimes) => {
+//       if (err) return cb(err, null);
+//       cb(null, passTimes);
+//       return;
+//     });
+// };
+
+const nextISSTimesForMyLocation = (cb) => {
+  fetchMyIP((err, ip) => {
+    if (err) return cb(err, null);
+    fetchCoordsByIP(ip, (err, coor) => {
+      if (err) return cb(err, null);
+      fetchISSFlyOverTimes(coor, (err, passTimes) => {
+        if (err) return cb(err, null);
+        cb(null, passTimes);
+      });
+    });
+  });
+};
+
+module.exports = { nextISSTimesForMyLocation };
